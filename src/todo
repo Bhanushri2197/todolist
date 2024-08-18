@@ -1,0 +1,131 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function TodoList({ todoValues, onUpdate }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(todoValues.name);
+  const [newDescription, setNewDescription] = useState(todoValues.description);
+  const [status, setStatus] = useState(todoValues.status);
+
+  const handleEdit = async () => {
+    try {
+      await axios.put(`https://66ba6aaafa763ff550fbbd5d.mockapi.io/todolist/${todoValues.id}`, {
+        name: newName,
+        description: newDescription,
+        status
+      });
+      onUpdate(); // Refresh the list after update
+      setIsEditing(false); // Exit edit mode
+    } catch (error) {
+      alert('Error updating todo');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`https://66ba6aaafa763ff550fbbd5d.mockapi.io/todolist/${todoValues.id}`);
+      onUpdate(); // Refresh the list after delete
+    } catch (error) {
+      alert('Error deleting todo');
+    }
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    try {
+      await axios.put(`https://66ba6aaafa763ff550fbbd5d.mockapi.io/todolist/${todoValues.id}`, {
+        ...todoValues,
+        status: newStatus
+      });
+      setStatus(newStatus); // Update local status
+      onUpdate(); // Refresh the list after status change
+    } catch (error) {
+      alert('Error changing status');
+    }
+  };
+
+  return (
+    <div className="listCart">
+      <div className="nameBlock">
+        <span>Name : </span>
+        {isEditing ? (
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
+        ) : (
+          <span>{todoValues.name}</span>
+        )}
+      </div>
+      <div className="mt-3 mb-3 descriptionBlock">
+        <span>Description : </span>
+        {isEditing ? (
+          <input
+            type="text"
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+          />
+        ) : (
+          <span>{todoValues.description}</span>
+        )}
+      </div>
+      <div className="statusBlock d-flex">
+        <span>Status :</span>
+        <div className="dropdown statusDropdown">
+          <button
+            className="btn btn-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {status}
+          </button>
+          <ul className="dropdown-menu">
+            <li>
+              <button
+                className="dropdown-item"
+                onClick={() => handleStatusChange('Not Completed')}
+              >
+                Not Completed
+              </button>
+            </li>
+            <li>
+              <button
+                className="dropdown-item"
+                onClick={() => handleStatusChange('Completed')}
+              >
+                Completed
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div className="buttonBlock d-flex align-items-center justify-content-end">
+        {isEditing ? (
+          <>
+            <button className="btn btn-primary" onClick={handleEdit}>
+              Save
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn btn-warning" onClick={() => setIsEditing(true)}>
+              Edit
+            </button>
+            <button className="btn btn-danger" onClick={handleDelete}>
+              Delete
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default TodoList;

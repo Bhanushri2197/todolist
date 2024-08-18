@@ -1,27 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useState , useEffect } from 'react';
 
 function TodoList({ todoValues, onUpdate }) {
-
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(todoValues.name);
   const [newDescription, setNewDescription] = useState(todoValues.description);
   const [status, setStatus] = useState(todoValues.status || 'Not Completed');
 
+
   useEffect(() => {
     setStatus(todoValues.status || 'Not Completed');
-  }, [todoValues.status]);
+  }, [todoValues]);
   
+
   const handleEdit = async () => {
     try {
       await axios.put(`https://66ba6aaafa763ff550fbbd5d.mockapi.io/todolist/${todoValues.id}`, {
         name: newName,
         description: newDescription,
-        status: status,
+        status: status, // Update status when editing
       });
-      onUpdate(); 
-      setIsEditing(false); 
+      onUpdate();
+      setIsEditing(false);
     } catch (error) {
       alert('Error updating todo');
     }
@@ -90,7 +90,6 @@ function TodoList({ todoValues, onUpdate }) {
         </div>
       </div>  
       <div className="buttonBlock d-flex align-items-center justify-content-end">
-      
         {isEditing ? (
           <>
             <button className="btn btn-sm editBtn" onClick={handleEdit}>
